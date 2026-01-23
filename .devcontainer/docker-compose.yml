@@ -1,0 +1,21 @@
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfiler
+    volumes:
+      - ..:/workspace/java-spring-ai-1:cached
+    command: sleep infinity
+    links:
+      - ollama
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    tty: true
+    restart: unless-stopped
+    
+volumes:
+  ollama_data:
