@@ -2,7 +2,7 @@ services:
   app:
     build: 
       context: .
-      dockerfile: Dockerfiler
+      dockerfile: Dockerfile
     volumes:
       - ..:/workspace/java-spring-ai-1:cached
     command: sleep infinity
