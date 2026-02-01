@@ -1,13 +1,10 @@
 package com.coltran.javaspringai1.presentation.controllers;
 
-import java.util.Map;
-
-import javax.validation.constraints.NotNull;
-
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.constraints.NotNull;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -27,7 +24,8 @@ public class AgentController {
             """;
     
     public AgentController(ChatClient.Builder chatClientBuilder) {
-        this.chatClient = chatClientBuilder.build();
+        this.chatClient = chatClientBuilder
+        .build();
     }
 
     @GetMapping("/ask")
@@ -41,9 +39,9 @@ public class AgentController {
                     {context}        
                 """;
 
-        PromptTemplate promptTemplate = new PromptTemplate(systemRule);
-        Prompt prompt = promptTemplate.create(Map.of("context", HARDCODED_DOC));
-        return chatClient.prompt(prompt)
+        return chatClient.prompt()
+            .system(sp -> sp.text(systemRule).param("context", HARDCODED_DOC))
+            .toolNames("checkServiceHealth")
             .user(query)
             .call()
             .content();
