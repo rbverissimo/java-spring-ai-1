@@ -14,6 +14,7 @@ public class AiConfig {
         return MessageWindowChatMemory
             .builder()
             .chatMemoryRepository(new InMemoryChatMemoryRepository())
+            .maxMessages(10)
             .build();
     }
 }
