@@ -16,7 +16,7 @@ services:
       - POSTGRES_USER=agentdbuser
       - POSTGRES_PASSWORD=agentdbsecret
       - POSTGRES_DB=agentdb
-    volues:
+    volumes:
       - postgres_data:/var/lib/postgresql/data
   ollama:
     image: ollama/ollama:latest
