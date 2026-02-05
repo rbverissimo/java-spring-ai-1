@@ -4,6 +4,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.constraints.NotNull;
@@ -26,7 +27,9 @@ public class AgentController {
                 Cost Constraints: No AWS Lambda functions allowed, strictly Kubernetes on EC2.
             """;
     
-    public AgentController(ChatClient.Builder chatClientBuilder, ChatMemory chatMemory, VectorStore vectorStore) {
+    public AgentController(ChatClient.Builder chatClientBuilder, 
+        @Qualifier("windowChatMemory") ChatMemory chatMemory, 
+        VectorStore vectorStore) {
         this.chatClient = chatClientBuilder
         .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build()) 
         .build();
