@@ -8,6 +8,16 @@ services:
     command: sleep infinity
     links:
       - ollama
+  agent-db:
+    image: pgvector/pgvector:pg16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=agentdbuser
+      - POSTGRES_PASSWORD=agentdbsecret
+      - POSTGRES_DB=agentdb
+    volues:
+      - postgres_data:/var/lib/postgresql/data
   ollama:
     image: ollama/ollama:latest
     volumes:
@@ -19,3 +29,4 @@ services:
     
 volumes:
   ollama_data:
+  postgres_data:
