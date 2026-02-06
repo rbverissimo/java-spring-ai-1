@@ -1,8 +1,13 @@
 package com.coltran.javaspringai1.presentation.controllers;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,21 +22,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class AgentController {
 
     private final ChatClient chatClient;
-
-    private static final String HARDCODED_DOC = """
-                CONFIDENTIAL PROJECT 'TITAN':
-                Project Titan is a new microservices initiative to replace the legacy Monolith 'Zeus'.
-                The deadline for Phase 1 is December 2025.
-                The tech stack must be Java 21, Spring Boot 3.4, and PostgreSQL.
-                The lead architect is Robert V.
-                Cost Constraints: No AWS Lambda functions allowed, strictly Kubernetes on EC2.
-            """;
+    private final VectorStore vectorStore;
     
     public AgentController(ChatClient.Builder chatClientBuilder, 
         @Qualifier("windowChatMemory") ChatMemory chatMemory, 
         VectorStore vectorStore) {
+        this.vectorStore = vectorStore;
         this.chatClient = chatClientBuilder
-        .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build()) 
+        .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
         .build();
     }
 
@@ -48,8 +46,16 @@ public class AgentController {
                     {context}        
                 """;
 
+        List<Document> similarDocs = vectorStore.similaritySearch(
+            SearchRequest.builder().query(query).topK(4).build()
+        );
+
+        String documentContext = similarDocs.stream()
+            .map(Document::getFormattedContent)
+            .collect(Collectors.joining("\n\n---\n\n"));
+
         return chatClient.prompt()
-            .system(sp -> sp.text(systemRule).param("context", HARDCODED_DOC))
+            .system(sp -> sp.text(systemRule).param("context", documentContext))
             .toolNames("checkServiceHealth")
             .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, chatId))
             .user(query)
